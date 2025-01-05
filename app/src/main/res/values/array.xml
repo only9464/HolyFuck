@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="module_scope">
+        <item>com.android.systemui</item>
+        <item>android</item>
+        <item>com.zj.wuaipojie</item>
+        <item>com.gsx.tiku</item>
+        <item>com.tencent.mwadwdawad</item>
+    </string-array>
+    <string-array name="module_scope_name">
+        <item>系统界面</item>
+        <item>Android系统</item>
+        <item>wuaipojie</item>
+        <item>考途</item>
+        <item>我的发</item>
+    </string-array>
+</resources>
