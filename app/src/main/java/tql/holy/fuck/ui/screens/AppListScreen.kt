@@ -1,10 +1,8 @@
-package tql.holy.fuck.ui.activity
+package tql.holy.fuck.ui.screens
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,32 +10,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import android.graphics.drawable.BitmapDrawable
-import androidx.compose.ui.graphics.Color
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import tql.holy.fuck.R
 import java.text.SimpleDateFormat
 import java.util.*
-
-class AppListActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            AppListScreen()
-        }
-    }
-}
 
 @Composable
 fun AppListScreen() {
@@ -50,13 +35,11 @@ fun AppListScreen() {
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
-        // 搜索栏
         SearchBar(
             searchQuery = searchQuery,
             onSearchQueryChange = { searchQuery = it }
         )
 
-        // 应用列表
         val packageToAppName = remember {
             val packageNames = context.resources.getStringArray(R.array.module_scope)
             val appNames = context.resources.getStringArray(R.array.module_scope_name)
@@ -93,7 +76,7 @@ fun AppListScreen() {
 }
 
 @Composable
-fun SearchBar(
+private fun SearchBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit
 ) {
@@ -121,7 +104,6 @@ fun SearchBar(
     )
 }
 
-// 数据类，用于表示应用信息
 data class AppInfo(
     val appInfo: ApplicationInfo? = null,
     val pm: PackageManager? = null,
@@ -131,12 +113,11 @@ data class AppInfo(
     val lastUpdateTime: Long = 0,
     val icon: BitmapDrawable? = null
 ) {
-    // 构造函数，用于已安装的应用
     constructor(appInfo: ApplicationInfo, pm: PackageManager) : this(
         appInfo = appInfo,
         pm = pm,
         packageName = appInfo.packageName,
-        label = appInfo.loadLabel(pm).toString(), // 从 ApplicationInfo 获取应用名称
+        label = appInfo.loadLabel(pm).toString(),
         firstInstallTime = try {
             pm.getPackageInfo(appInfo.packageName, PackageManager.GET_META_DATA).firstInstallTime
         } catch (e: PackageManager.NameNotFoundException) {
@@ -150,10 +131,9 @@ data class AppInfo(
         icon = appInfo.loadIcon(pm) as? BitmapDrawable
     )
 
-    // 构造函数，用于未安装的应用
     constructor(packageName: String, appName: String) : this(
         packageName = packageName,
-        label = appName, // 使用传入的应用名称
+        label = appName,
         firstInstallTime = 0,
         lastUpdateTime = 0,
         icon = null
@@ -161,18 +141,20 @@ data class AppInfo(
 }
 
 @Composable
-fun AppItem(appInfo: AppInfo, pm: PackageManager) {
-    // 安装时间和更新时间的格式化
+private fun AppItem(appInfo: AppInfo, pm: PackageManager) {
     val installTimeFormatted = remember(appInfo.firstInstallTime) {
         if (appInfo.firstInstallTime > 0) {
-            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(appInfo.firstInstallTime))
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                .format(Date(appInfo.firstInstallTime))
         } else {
             ""
         }
     }
+    
     val updateTimeFormatted = remember(appInfo.lastUpdateTime) {
         if (appInfo.lastUpdateTime > 0) {
-            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(appInfo.lastUpdateTime))
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                .format(Date(appInfo.lastUpdateTime))
         } else {
             ""
         }
@@ -185,11 +167,9 @@ fun AppItem(appInfo: AppInfo, pm: PackageManager) {
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(12.dp),
+            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 应用图标
             if (appInfo.icon != null) {
                 Image(
                     bitmap = appInfo.icon.bitmap.asImageBitmap(),
@@ -197,7 +177,6 @@ fun AppItem(appInfo: AppInfo, pm: PackageManager) {
                     modifier = Modifier.size(40.dp)
                 )
             } else {
-                // 使用默认图标
                 Icon(
                     imageVector = Icons.Filled.Android,
                     contentDescription = "Default Icon",
@@ -208,7 +187,6 @@ fun AppItem(appInfo: AppInfo, pm: PackageManager) {
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // 应用信息
             Column {
                 Text(
                     text = appInfo.label,
