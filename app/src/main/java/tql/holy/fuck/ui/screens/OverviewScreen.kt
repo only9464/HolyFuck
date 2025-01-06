@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.highcapable.yukihookapi.YukiHookAPI
 import tql.holy.fuck.BuildConfig
 import tql.holy.fuck.R
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun OverviewScreen(onNavigateToAppList: () -> Unit) {
@@ -171,63 +172,73 @@ fun OverviewScreen(onNavigateToAppList: () -> Unit) {
 @Composable
 private fun ModuleStatusCard() {
     val isModuleActive = YukiHookAPI.Status.isModuleActive
-    val backgroundColor = if (isModuleActive) Color(0xFF4CAF50) else Color(0xFF424242)
     
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+        colors = CardDefaults.cardColors(containerColor = if (!isModuleActive) Color(0xFF424242) else Color.Transparent)
     ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (isModuleActive) "✓" else "!",
-                color = if (isModuleActive) Color.Yellow else Color.Gray,
-                fontSize = 25.sp,
-                modifier = Modifier.size(25.dp)
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = if (isModuleActive) "模块已激活" else "模块未激活",
-                        color = if (isModuleActive) Color.Yellow else Color.Gray,
-                        fontSize = 18.sp
-                    )
-                    Text(
-                        text = buildAnnotatedString {
-                            append("--- 让科技真正服务于")
-                            withStyle(SpanStyle(color = Color.Red)) {
-                                append("无产阶级")
-                            }
-                            append("！！！ ---")
-                        },
-                        color = Color.White.copy(alpha = 0.8f),
-                        fontSize = 13.sp,
-                        modifier = Modifier.padding(top = 5.dp)
-                    )
-                    
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
                     if (isModuleActive) {
-                        Text(
-                            text = if (YukiHookAPI.Status.Executor.apiLevel > 0)
-                                "Activated by ${YukiHookAPI.Status.Executor.name} API ${YukiHookAPI.Status.Executor.apiLevel}"
-                            else 
-                                "Activated by ${YukiHookAPI.Status.Executor.name}",
-                            color = Color.White.copy(alpha = 0.6f),
-                            fontSize = 11.sp,
-                            modifier = Modifier.padding(top = 5.dp)
+                        Modifier.background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color(0xFF2196F3),
+                                    Color(0xFFFFB74D)
+                                )
+                            )
                         )
+                    } else {
+                        Modifier
                     }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = if (isModuleActive) "模块已激活" else "模块未激活",
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(color = Color.Red)) {
+                            append("-☭☭☭")
+                        }
+                        append(" 让科技真正服务于")
+                        withStyle(SpanStyle(color = Color.Red)) {
+                            append(" 无产阶级 ")
+                        }
+                        append("! ")
+                        withStyle(SpanStyle(color = Color.Red)) {
+                            append("☭☭☭-")
+                        }
+                    },
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 5.dp),
+                    textAlign = TextAlign.Center
+                )
+                
+                if (isModuleActive) {
+                    Text(
+                        text = if (YukiHookAPI.Status.Executor.apiLevel > 0)
+                            "Activated by ${YukiHookAPI.Status.Executor.name} API ${YukiHookAPI.Status.Executor.apiLevel}"
+                        else 
+                            "Activated by ${YukiHookAPI.Status.Executor.name}",
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(top = 5.dp),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }

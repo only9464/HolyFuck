@@ -54,6 +54,5 @@
             </intent-filter>
         </activity-alias>
 
-        <activity android:name=".ui.activity.AppListActivity" />
     </application>
 </manifest>
