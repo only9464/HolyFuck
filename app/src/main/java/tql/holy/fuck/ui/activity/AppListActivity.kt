@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,39 +43,43 @@ class AppListActivity : ComponentActivity() {
 fun AppListScreen() {
     val context = LocalContext.current
     val pm = context.packageManager
-
-    // 从 XML 文件中读取包名和应用名的映射
-    val packageToAppName = remember {
-        val packageNames = context.resources.getStringArray(R.array.module_scope)
-        val appNames = context.resources.getStringArray(R.array.module_scope_name)
-        packageNames.zip(appNames).toMap()
-    }
-
-    // 获取已安装应用的信息
-    val installedApps = remember {
-        pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            .associateBy { it.packageName }
-    }
-
-    // 构建应用列表数据
-    val appsList = remember {
-        packageToAppName.keys.map { packageName ->
-            installedApps[packageName]?.let { appInfo ->
-                // 如果应用已安装，返回已安装应用的信息
-                AppInfo(appInfo, pm)
-            } ?: AppInfo(packageName, packageToAppName[packageName] ?: packageName) // 如果应用未安装，从映射中获取应用名
-        }.sortedByDescending { it.lastUpdateTime } // 按照更新时间对这些应用进行降序排序
-    }
-
+    var searchQuery by remember { mutableStateOf("") }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
-        // 顶部栏
-        TopBar()
+        // 搜索栏
+        SearchBar(
+            searchQuery = searchQuery,
+            onSearchQueryChange = { searchQuery = it }
+        )
 
         // 应用列表
+        val packageToAppName = remember {
+            val packageNames = context.resources.getStringArray(R.array.module_scope)
+            val appNames = context.resources.getStringArray(R.array.module_scope_name)
+            packageNames.zip(appNames).toMap()
+        }
+
+        val installedApps = remember {
+            pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                .associateBy { it.packageName }
+        }
+
+        val appsList = remember(searchQuery) {
+            packageToAppName.keys.map { packageName ->
+                installedApps[packageName]?.let { appInfo ->
+                    AppInfo(appInfo, pm)
+                } ?: AppInfo(packageName, packageToAppName[packageName] ?: packageName)
+            }.filter { appInfo ->
+                searchQuery.isEmpty() || 
+                appInfo.label.contains(searchQuery, ignoreCase = true) ||
+                appInfo.packageName.contains(searchQuery, ignoreCase = true)
+            }.sortedByDescending { it.lastUpdateTime }
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -88,30 +93,32 @@ fun AppListScreen() {
 }
 
 @Composable
-fun TopBar() {
-    val context = LocalContext.current
-
-    Row(
+fun SearchBar(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = searchQuery,
+        onValueChange = onSearchQueryChange,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Default.ArrowBack,
-            contentDescription = "返回",
-            modifier = Modifier
-                .size(24.dp)
-                .clickable { (context as? ComponentActivity)?.finish() }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        placeholder = { Text("搜索应用") },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "搜索",
+                tint = Color.Gray
+            )
+        },
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = Color.Gray,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White
         )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = "已安装应用",
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
+    )
 }
 
 // 数据类，用于表示应用信息
@@ -212,16 +219,16 @@ fun AppItem(appInfo: AppInfo, pm: PackageManager) {
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
-                if (installTimeFormatted.isNotEmpty()) {
+                if (updateTimeFormatted.isNotEmpty()) {
                     Text(
-                        text = "安装时间: $installTimeFormatted",
+                        text = "更新时间: $updateTimeFormatted",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
                 }
-                if (updateTimeFormatted.isNotEmpty()) {
+                if (installTimeFormatted.isNotEmpty()) {
                     Text(
-                        text = "更新时间: $updateTimeFormatted",
+                        text = "安装时间: $installTimeFormatted",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )

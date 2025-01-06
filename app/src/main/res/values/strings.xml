@@ -1,12 +1,5 @@
 <resources>
     <string name="app_name">HolyFuck</string>
-    <string name="xposed_desc">一个菜鸟的Xposed模块</string>
-    <string name="about_module">本模块基于YukiHookAPI开发. \n想要了解更多请前往：https://github.com/HighCapable/YuKiHookAPI</string>
-    <string name="module_version">模块版本: %1$s</string>
-    <string name="module_not_activated">Module not activated</string>
-    <string name="module_is_activated">Module is activated</string>
-    <string name="display_settings">Display settings</string>
-    <string name="hide_app_icon_on_launcher">Hide app icons on launcher</string>
-    <string name="hide_app_icon_on_launcher_tip">After hiding the app icon, the interface may be closed and will no longer be displayed on the launcher. You can find and open the module settings in EdXposed or LSPosed.</string>
-    <string name="hide_app_icon_on_launcher_notice">Note: Be sure to turn off the \"Force apps to show launcher icons\" feature in LSPosed</string>
+    <string name="xposed_desc">我玩Xposed模块只干三件事：公平、公平、还是他妈的公平！！！</string>
+    <string name="module_version">Module Version: %1$s</string>
 </resources>

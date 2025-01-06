@@ -1,3 +1,7 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 plugins {
     autowire(libs.plugins.android.application)
     autowire(libs.plugins.kotlin.android)
@@ -17,6 +21,11 @@ android {
         versionName = property.project.app.versionName
         versionCode = property.project.app.versionCode
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // 动态设置 BUILD_TIME 使用北京时间
+        val buildTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
+        buildTimeFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+        val buildTime = buildTimeFormat.format(Date())
+        buildConfigField("String", "BUILD_TIME", "\"$buildTime\"")
     }
     buildTypes {
         release {
